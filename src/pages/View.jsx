@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import { addToCartAPI, addOrderAPI } from "../services/allAPI";
+import { serverURL } from "../services/serverURL";
 import Swal from "sweetalert2";
 import AddressModal from "../components/AddressModal";
 
-export default function View() {
+function View() {
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +19,7 @@ export default function View() {
     const id = params.get("id");
 
     if (id) {
-      fetch(`http://localhost:3000/products?id=${id}`)
+      fetch(`${serverURL}/products?id=${id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.length > 0) setProduct(data[0]);
@@ -45,7 +46,7 @@ export default function View() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/cart");
+      const res = await fetch(`${serverURL}/cart`);
       const cartData = await res.json();
 
       const existingItem = cartData.find(
@@ -53,7 +54,7 @@ export default function View() {
       );
 
       if (existingItem) {
-        await fetch(`http://localhost:3000/cart/${existingItem.id}`, {
+        await fetch(`${serverURL}/cart/${existingItem.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quantity: existingItem.quantity + 1 }),
@@ -137,7 +138,10 @@ export default function View() {
           {/* Product Image */}
           <div className="flex justify-center items-center">
             <img
-              src={product.img || "https://via.placeholder.com/500x500?text=No+Image"}
+              src={
+                product.img ||
+                "https://via.placeholder.com/500x500?text=No+Image"
+              }
               alt={product.name}
               className="w-full max-w-md rounded-lg shadow-md"
             />
@@ -145,7 +149,9 @@ export default function View() {
 
           {/* Product Details */}
           <div className="flex flex-col justify-start">
-            <h2 className="text-3xl font-bold text-pink-700 mb-4">{product.name}</h2>
+            <h2 className="text-3xl font-bold text-pink-700 mb-4">
+              {product.name}
+            </h2>
             <p className="text-pink-600 text-xl mb-4">₹{product.price}</p>
             <p className="text-pink-600 mb-6">{product.description}</p>
 
@@ -158,9 +164,10 @@ export default function View() {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`px-3 py-1 border rounded-md font-semibold cursor-pointer transition
-                      ${selectedSize === size
-                        ? "bg-pink-700 text-white border-pink-700"
-                        : "bg-white text-pink-700 border-pink-300 hover:bg-pink-200"
+                      ${
+                        selectedSize === size
+                          ? "bg-pink-700 text-white border-pink-700"
+                          : "bg-white text-pink-700 border-pink-300 hover:bg-pink-200"
                       }`}
                   >
                     {size}
@@ -198,3 +205,5 @@ export default function View() {
     </>
   );
 }
+
+export default View;
